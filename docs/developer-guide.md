@@ -67,11 +67,10 @@ This will:
 
 ## Part 2 — Each Session
 
-> **First time:** Complete Part 1 above, then follow the steps below.
+> Each session follows the same cycle: provision → deploy → test → destroy.
+> After destroying your cluster, your WSL is reset and ready — start the next session from Step 1 again.
 >
-> **Returning sessions:** Your WSL setup is intact — `destroy-cluster.sh` only removes the cluster, not your tooling or scripts. Skip straight to Step 1 below.
->
-> Each session follows the same cycle: **provision → deploy → test → destroy.**
+> Run these commands at the start of each test session.
 
 ### Step 1 — Provision your cluster
 
@@ -145,9 +144,7 @@ At the end of your session:
 ./destroy-cluster.sh
 ```
 
-This removes your cluster and resets the WSL node state. Your tooling, scripts, and kubeconfig remain intact.
-
-When you are ready to test again, run `./new-cluster.sh` to provision a fresh cluster — no need to redo Part 1.
+This deletes your cluster and resets WSL. When you are ready to test again, start a new session from Step 1 — `./new-cluster.sh`. No need to redo the one-time setup.
 
 ---
 
