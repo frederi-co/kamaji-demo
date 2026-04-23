@@ -21,6 +21,8 @@ Copy both files to your Windows Downloads folder.
 
 ## Part 1 — One-Time WSL Setup
 
+> Skip this section if you have already run setup before. Go straight to [Part 2](#part-2--each-session).
+>
 > Run once when you first get your files from ops.
 
 ### 1.1 — Enable systemd
