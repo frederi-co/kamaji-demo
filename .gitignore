@@ -3,3 +3,4 @@ output/
 *.pem
 .claude/
 RUNBOOK.md
+docs/ops-guide.md
