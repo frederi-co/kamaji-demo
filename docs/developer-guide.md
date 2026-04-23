@@ -67,6 +67,9 @@ This will:
 
 ## Part 2 — Each Session
 
+> Each session follows the same cycle: provision → deploy → test → destroy.
+> After destroying your cluster, your WSL is reset and ready — start the next session from Step 1 again.
+>
 > Run these commands at the start of each test session.
 
 ### Step 1 — Provision your cluster
@@ -141,7 +144,7 @@ At the end of your session:
 ./destroy-cluster.sh
 ```
 
-This deletes your cluster and resets WSL — ready for the next session.
+This deletes your cluster and resets WSL. When you are ready to test again, start a new session from Step 1 — `./new-cluster.sh`. No need to redo the one-time setup.
 
 ---
 
