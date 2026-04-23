@@ -6,12 +6,14 @@ This guide walks you through setting up your personal Kubernetes cluster and run
 
 ## What You Need From Ops
 
-Before starting, ops will send you two files:
+Ops will assign you a developer username (e.g. `dev-alice`) and send you two files named after it. This username is your identity throughout — it scopes your cluster, your RBAC access, and your kubeconfig.
 
 | File                          | Purpose                                          |
 |-------------------------------|--------------------------------------------------|
 | `dev-alice-mgmt.kubeconfig`   | Your restricted access to the management cluster |
 | `dev-alice-tcp.yaml`          | Your cluster definition                          |
+
+> Replace `dev-alice` with your own username in all commands below.
 
 Copy both files to your Windows Downloads folder.
 
