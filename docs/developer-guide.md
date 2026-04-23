@@ -8,10 +8,10 @@ This guide walks you through setting up your personal Kubernetes cluster and run
 
 Before starting, ops will send you two files:
 
-| File | Purpose |
-|------|---------|
-| `dev-alice-mgmt.kubeconfig` | Your restricted access to the management cluster |
-| `dev-alice-tcp.yaml` | Your cluster definition |
+| File                          | Purpose                                          |
+|-------------------------------|--------------------------------------------------|
+| `dev-alice-mgmt.kubeconfig`   | Your restricted access to the management cluster |
+| `dev-alice-tcp.yaml`          | Your cluster definition                          |
 
 Copy both files to your Windows Downloads folder.
 
@@ -113,13 +113,13 @@ Simulate promoting your app across environments:
 
 Refresh your browser — colour and label update instantly without reprovisioning.
 
-| Colour | Label |
-|--------|-------|
-| blue | Development |
-| green | Testing |
-| orange | Staging |
-| red | Production |
-| purple | Hotfix |
+| Colour   | Label       |
+|----------|-------------|
+| blue     | Development |
+| green    | Testing     |
+| orange   | Staging     |
+| red      | Production  |
+| purple   | Hotfix      |
 
 ---
 
