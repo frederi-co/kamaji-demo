@@ -2,3 +2,4 @@ output/
 *.kubeconfig
 *.pem
 .claude/
+RUNBOOK.md
