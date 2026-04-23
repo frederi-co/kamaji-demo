@@ -74,6 +74,12 @@ cd ~/kamaji-scripts
 ./new-cluster.sh
 ```
 
+This does everything in one step:
+1. Creates your tenant control plane on the management cluster (~16 seconds)
+2. Generates a join token
+3. Joins **your WSL machine** as the worker node (~30 seconds)
+4. Installs Calico CNI and waits for the node to be Ready
+
 Expected output:
 ```
 ✓ Control plane ready in 16 seconds
