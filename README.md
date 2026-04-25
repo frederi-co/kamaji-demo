@@ -39,10 +39,11 @@ A self-service Kubernetes environment powered by [Kamaji](https://kamaji.clastix
 |--------|---------|
 | `scripts/developer/setup-wsl.sh <tenant-name> <mgmt-kubeconfig>` | One-time WSL setup |
 | `scripts/developer/setup-ec2-worker.sh` | One-time EC2 worker setup (alternative to WSL) |
+| `scripts/developer/setup-kubectl-tools.sh` | Configure kubectl bash completion and k alias |
 | `scripts/developer/join-cluster.sh` | Join WSL/EC2 as worker to pre-provisioned control plane |
 | `scripts/developer/deploy-app.sh [colour] [label]` | Deploy demo app |
 | `scripts/developer/change-env.sh <colour> [label]` | Change app environment live |
-| `scripts/developer/detach-cluster.sh` | Detach worker node and reset local state |
+| `scripts/developer/detach-cluster.sh` | Remove node record, detach worker, reset local state |
 
 ## Tenant Port Assignments
 

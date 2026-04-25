@@ -61,6 +61,15 @@ This will:
 - Pre-pull all required images (~3 min first time)
 - Save your kubeconfig and scripts to `~/kamaji-scripts/`
 
+### 1.4 — Set up kubectl tools
+
+```bash
+bash scripts/developer/setup-kubectl-tools.sh
+source ~/.bashrc
+```
+
+This configures bash completion and the `k` alias for kubectl.
+
 ---
 
 ## Part 2 — Each Session
@@ -140,7 +149,7 @@ If you want to cleanly reset your WSL at the end of a session:
 ./detach-cluster.sh
 ```
 
-This resets your WSL worker node. Your control plane stays running on the management cluster — just run `./join-cluster.sh` again next session to rejoin.
+This removes your node record from the cluster, resets your WSL worker node, and cleans up local state. Your control plane stays running on the management cluster — just run `./join-cluster.sh` again next session to rejoin.
 
 ---
 
