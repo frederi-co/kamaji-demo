@@ -159,7 +159,8 @@ echo "  ✓ Kamaji Console installed and exposed on port 30080"
 # ─────────────────────────────────────────────
 echo ""
 echo "── Step 9: Generating ops kubeconfig"
-sed "s/127.0.0.1/${MGMT_IP}/g" /home/ubuntu/.kube/config > /home/ubuntu/kamaji-ops.kubeconfig
+sed "s/127.0.0.1/${MGMT_IP}/g" /home/ubuntu/.kube/config | \
+  sed 's/certificate-authority-data:.*/insecure-skip-tls-verify: true/' > /home/ubuntu/kamaji-ops.kubeconfig
 chmod 600 /home/ubuntu/kamaji-ops.kubeconfig
 echo "  ✓ Ops kubeconfig saved to ~/kamaji-ops.kubeconfig"
 echo "  To copy to your ops laptop:"
