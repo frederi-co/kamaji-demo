@@ -4,7 +4,7 @@ set -euo pipefail
 # ─────────────────────────────────────────────
 # Kamaji Worker Node Setup Script
 # Run this on a fresh Ubuntu 22.04 EC2 instance
-# Usage: bash setup-worker.sh
+# Usage: bash setup-ec2-worker.sh
 # ─────────────────────────────────────────────
 
 echo ""

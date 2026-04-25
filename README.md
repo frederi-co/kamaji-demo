@@ -38,7 +38,7 @@ A self-service Kubernetes environment powered by [Kamaji](https://kamaji.clastix
 | Script | Purpose |
 |--------|---------|
 | `scripts/developer/setup-wsl.sh <tenant-name> <mgmt-kubeconfig>` | One-time WSL setup |
-| `scripts/developer/setup-worker.sh` | One-time EC2 worker setup (alternative to WSL) |
+| `scripts/developer/setup-ec2-worker.sh` | One-time EC2 worker setup (alternative to WSL) |
 | `scripts/developer/join-cluster.sh` | Join WSL/EC2 as worker to pre-provisioned control plane |
 | `scripts/developer/deploy-app.sh [colour] [label]` | Deploy demo app |
 | `scripts/developer/change-env.sh <colour> [label]` | Change app environment live |
