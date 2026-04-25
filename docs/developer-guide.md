@@ -6,16 +6,15 @@ This guide walks you through setting up your personal Kubernetes cluster and run
 
 ## What You Need From Ops
 
-Ops will assign you a developer username (e.g. `dev-alice`) and send you two files named after it. This username is your identity throughout — it scopes your cluster, your RBAC access, and your kubeconfig.
+Ops will assign you a tenant name (e.g. `dev-alice`) and send you one file named after it. This name is your identity throughout — it scopes your cluster, your RBAC access, and your kubeconfig.
 
 | File                          | Purpose                                          |
 |-------------------------------|--------------------------------------------------|
 | `dev-alice-mgmt.kubeconfig`   | Your restricted access to the management cluster |
-| `dev-alice-tcp.yaml`          | Your cluster definition                          |
 
-> Replace `dev-alice` with your own username in all commands below.
+> Replace `dev-alice` with your own tenant name in all commands below.
 
-Copy both files to your Windows Downloads folder.
+Copy the file to your Windows Downloads folder.
 
 ---
 
@@ -54,8 +53,7 @@ cd kamaji-demo
 
 ```bash
 bash scripts/developer/setup-wsl.sh dev-alice \
-  /mnt/c/Users/<your-username>/Downloads/dev-alice-mgmt.kubeconfig \
-  /mnt/c/Users/<your-username>/Downloads/dev-alice-tcp.yaml
+  /mnt/c/Users/<your-username>/Downloads/dev-alice-mgmt.kubeconfig
 ```
 
 This will:
@@ -67,29 +65,27 @@ This will:
 
 ## Part 2 — Each Session
 
-> Each session follows the same cycle: provision → deploy → test → destroy.
-> After destroying your cluster, your WSL is reset and ready — start the next session from Step 1 again.
->
 > Run these commands at the start of each test session.
+> Re-running `join-cluster.sh` is safe — it resets any previous state automatically.
 
-### Step 1 — Provision your cluster
+### Step 1 — Join your cluster
 
 ```bash
 cd ~/kamaji-scripts
-./new-cluster.sh
+./join-cluster.sh
 ```
 
 This does everything in one step:
-1. Creates your tenant control plane on the management cluster (~16 seconds)
+1. Verifies your control plane is Ready on the management cluster
 2. Generates a join token
 3. Joins **your WSL machine** as the worker node (~30 seconds)
 4. Installs Calico CNI and waits for the node to be Ready
 
 Expected output:
 ```
-✓ Control plane ready in 16 seconds
-✓ Cluster ready for dev-alice!
-  Control plane: https://54.169.253.180:31001
+✓ Control plane is Ready
+✓ Joined cluster for dev-alice!
+  Control plane: https://52.221.159.116:31001
   Worker node:   <your-hostname>
 ```
 
@@ -136,15 +132,15 @@ Refresh your browser — colour and label update instantly without reprovisionin
 
 ---
 
-### Step 4 — Destroy your cluster
+### Step 4 — Detach worker (optional)
 
-At the end of your session:
+If you want to cleanly reset your WSL at the end of a session:
 
 ```bash
-./destroy-cluster.sh
+./detach-cluster.sh
 ```
 
-This deletes your cluster and resets WSL. When you are ready to test again, start a new session from Step 1 — `./new-cluster.sh`. No need to redo the one-time setup.
+This resets your WSL worker node. Your control plane stays running on the management cluster — just run `./join-cluster.sh` again next session to rejoin.
 
 ---
 
@@ -156,8 +152,8 @@ Add `systemd=true` to `/etc/wsl.conf` and run `wsl --shutdown` from PowerShell.
 **`developer identity not found` error**
 Re-run `setup-wsl.sh` — the `~/.kamaji-dev` file is missing.
 
-**`no active cluster` error**
-Run `./new-cluster.sh` first before deploying the app.
+**`control plane is not Ready` error**
+Contact ops — your control plane may not be provisioned yet.
 
 **`containerd not running` after reset**
 ```bash
