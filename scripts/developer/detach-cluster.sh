@@ -8,13 +8,24 @@ TENANT_KUBECONFIG="$HOME/.kube/${DEV}-tenant.kubeconfig"
 
 echo "==> Detaching worker node for $DEV..."
 
-# 1. Reset WSL kubelet state
+# 1. Delete node record from tenant cluster
+if [[ -f "$TENANT_KUBECONFIG" ]]; then
+  NODE=$(hostname | tr '[:upper:]' '[:lower:]')
+  echo "  --> Removing node $NODE from tenant cluster..."
+  kubectl --kubeconfig="$TENANT_KUBECONFIG" delete node "$NODE" --ignore-not-found 2>/dev/null \
+    && echo "  ✓ Node record removed" \
+    || echo "  ⚠ Could not reach control plane — skipping node removal"
+else
+  echo "  ⚠ No tenant kubeconfig found — skipping node removal"
+fi
+
+# 2. Reset WSL kubelet state
 echo "  --> Resetting WSL node..."
 sudo kubeadm reset -f 2>/dev/null || true
 sudo rm -rf /etc/cni/net.d
 echo "  ✓ WSL node reset"
 
-# 2. Clean up tenant kubeconfig
+# 3. Clean up tenant kubeconfig
 [[ -f "$TENANT_KUBECONFIG" ]] && rm -f "$TENANT_KUBECONFIG"
 echo "  ✓ Tenant kubeconfig removed"
 
