@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-MGMT_IP="54.169.253.180"
+MGMT_IP="52.221.159.116"
 CALICO_MANIFEST="$HOME/.kube/calico.yaml"
 
 [[ ! -f "$HOME/.kamaji-dev" ]] && { echo "Error: developer identity not found. Run setup-wsl.sh first."; exit 1; }
@@ -9,26 +9,16 @@ DEV=$(cat "$HOME/.kamaji-dev")
 MGMT_KUBECONFIG="$HOME/.kube/${DEV}.mgmt.kubeconfig"
 TENANT_KUBECONFIG="$HOME/.kube/${DEV}-tenant.kubeconfig"
 
-echo "==> Provisioning cluster for $DEV..."
+echo "==> Joining cluster for $DEV..."
 
-# 1. Apply TenantControlPlane
-echo "  --> Creating tenant control plane..."
-kubectl --kubeconfig="$MGMT_KUBECONFIG" apply -f "$HOME/.kube/${DEV}-tcp.yaml"
+# 1. Verify control plane is Ready
+echo "  --> Checking control plane status..."
+STATUS=$(kubectl --kubeconfig="$MGMT_KUBECONFIG" get tcp "$DEV" -n "$DEV" \
+  --no-headers 2>/dev/null | awk '{print $3}' || true)
+[[ "$STATUS" != "Ready" ]] && { echo "Error: control plane is not Ready (status: ${STATUS:-not found}). Contact ops."; exit 1; }
+echo "  ✓ Control plane is Ready"
 
-# 2. Wait for Ready
-echo "  --> Waiting for control plane to be ready (~16 seconds)..."
-START=$(date +%s)
-for i in $(seq 1 24); do
-  STATUS=$(kubectl --kubeconfig="$MGMT_KUBECONFIG" get tcp "$DEV" -n "$DEV" \
-    --no-headers 2>/dev/null | awk '{print $3}' || true)
-  [[ "$STATUS" == "Ready" ]] && break
-  sleep 5
-done
-[[ "$STATUS" != "Ready" ]] && { echo "Error: control plane did not become Ready in time"; exit 1; }
-END=$(date +%s)
-echo "  ✓ Control plane ready in $((END - START)) seconds"
-
-# 3. Fetch tenant kubeconfig
+# 2. Fetch tenant kubeconfig
 kubectl --kubeconfig="$MGMT_KUBECONFIG" get secret "${DEV}-admin-kubeconfig" \
   -n "$DEV" -o jsonpath='{.data.admin\.conf}' | base64 --decode > "$TENANT_KUBECONFIG"
 echo "  ✓ Tenant kubeconfig saved to $TENANT_KUBECONFIG"
@@ -68,7 +58,7 @@ kubectl --kubeconfig="$TENANT_KUBECONFIG" wait node "$NODE" \
   --for=condition=Ready --timeout=180s
 
 echo ""
-echo "✓ Cluster ready for $DEV!"
+echo "✓ Joined cluster for $DEV!"
 echo "  Control plane: https://${MGMT_IP}:$(kubectl --kubeconfig="$MGMT_KUBECONFIG" get tcp "$DEV" -n "$DEV" -o jsonpath='{.spec.networkProfile.port}')"
 echo "  Worker node:   $(hostname)"
 echo ""

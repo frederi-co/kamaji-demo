@@ -9,7 +9,7 @@ set -euo pipefail
 
 usage() {
   echo "Usage: $0 <public-ip> [console-password]"
-  echo "  Example: $0 54.169.253.180 admin123"
+  echo "  Example: $0 52.221.159.116 admin123"
   exit 1
 }
 
@@ -172,7 +172,8 @@ echo ""
 echo "── Step 10: Installing ops scripts"
 mkdir -p /home/ubuntu/scripts/ops /home/ubuntu/scripts/developer
 SCRIPT_DIR="$(dirname "$0")"
-cp "$SCRIPT_DIR/provision-developer.sh" /home/ubuntu/scripts/ops/
+cp "$SCRIPT_DIR/provision-tenant.sh" /home/ubuntu/scripts/ops/
+cp "$SCRIPT_DIR/deprovision-tenant.sh" /home/ubuntu/scripts/ops/
 cp "$SCRIPT_DIR/../developer/"*.sh /home/ubuntu/scripts/developer/
 chmod +x /home/ubuntu/scripts/ops/*.sh /home/ubuntu/scripts/developer/*.sh
 echo "  ✓ Scripts installed to ~/scripts/"
@@ -206,9 +207,9 @@ echo "    1. Open the ports above in the EC2 security group"
 echo "    2. Copy ops kubeconfig to your laptop:"
 echo "         scp -i <key.pem> ubuntu@${MGMT_IP}:/home/ubuntu/kamaji-ops.kubeconfig ~/.kube/kamaji-mgmt.kubeconfig"
 echo "         export KUBECONFIG=~/.kube/kamaji-mgmt.kubeconfig"
-echo "    3. Onboard developers (from ops laptop or EC2 #1):"
-echo "         bash provision-developer.sh dev-alice"
-echo "         bash provision-developer.sh dev-bryan"
-echo "         bash provision-developer.sh dev-charlie"
-echo "    4. Send each developer their <dev-name>-mgmt.kubeconfig and <dev-name>-tcp.yaml"
-echo "    5. Developer runs: bash setup-wsl.sh <dev-name> <mgmt-kubeconfig> <tcp-yaml>"
+echo "    3. Provision tenants (from ops laptop or EC2 #1):"
+echo "         bash provision-tenant.sh dev-alice"
+echo "         bash provision-tenant.sh dev-bryan"
+echo "         bash provision-tenant.sh dev-charlie"
+echo "    4. Send each developer their <dev-name>-mgmt.kubeconfig"
+echo "    5. Developer runs: bash setup-wsl.sh <dev-name> <mgmt-kubeconfig>"

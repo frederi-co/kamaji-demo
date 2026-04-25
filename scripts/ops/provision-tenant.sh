@@ -1,18 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
-MGMT_IP="54.169.253.180"
+MGMT_IP="52.221.159.116"
 K8S_VERSION="v1.30.0"
 
-declare -A API_PORT=( [dev-alice]=31001 [dev-bryan]=31003 [dev-charlie]=31005 )
-declare -A PROXY_PORT=( [dev-alice]=31002 [dev-bryan]=31004 [dev-charlie]=31006 )
-declare -A POD_CIDR=( [dev-alice]="10.100.0.0/16" [dev-bryan]="10.102.0.0/16" [dev-charlie]="10.104.0.0/16" )
-declare -A SVC_CIDR=( [dev-alice]="10.101.0.0/16" [dev-bryan]="10.103.0.0/16" [dev-charlie]="10.105.0.0/16" )
-declare -A DNS_SVC=( [dev-alice]="10.101.0.10" [dev-bryan]="10.103.0.10" [dev-charlie]="10.105.0.10" )
+declare -A API_PORT=( [dev-alice]=31001 [dev-bryan]=31003 [project-charlie]=31005 )
+declare -A PROXY_PORT=( [dev-alice]=31002 [dev-bryan]=31004 [project-charlie]=31006 )
+declare -A POD_CIDR=( [dev-alice]="10.100.0.0/16" [dev-bryan]="10.102.0.0/16" [project-charlie]="10.104.0.0/16" )
+declare -A SVC_CIDR=( [dev-alice]="10.101.0.0/16" [dev-bryan]="10.103.0.0/16" [project-charlie]="10.105.0.0/16" )
+declare -A DNS_SVC=( [dev-alice]="10.101.0.10" [dev-bryan]="10.103.0.10" [project-charlie]="10.105.0.10" )
 
 usage() {
-  echo "Usage: $0 <dev-name>"
-  echo "  dev-name: dev-alice | dev-bryan | dev-charlie"
+  echo "Usage: $0 <tenant-name>"
+  echo "  tenant-name: dev-alice | dev-bryan | project-charlie"
   exit 1
 }
 
@@ -126,12 +126,29 @@ spec:
         port: ${PROXY_PORT[$DEV]}
 EOF
 
+# 7. Apply TenantControlPlane
 echo ""
-echo "✓ Developer $DEV onboarded successfully!"
+echo "==> Applying TenantControlPlane for $DEV..."
+kubectl apply -f "./output/${DEV}-tcp.yaml"
+
+# 8. Wait for Ready
+echo "  --> Waiting for control plane to be ready..."
+START=$(date +%s)
+STATUS=""
+for i in $(seq 1 24); do
+  STATUS=$(kubectl get tcp "$DEV" -n "$DEV" --no-headers 2>/dev/null | awk '{print $3}' || true)
+  [[ "$STATUS" == "Ready" ]] && break
+  sleep 5
+done
+[[ "$STATUS" != "Ready" ]] && { echo "Error: control plane did not become Ready in time"; exit 1; }
+END=$(date +%s)
+echo "  ✓ Control plane ready in $((END - START)) seconds"
+
+echo ""
+echo "✓ Tenant $DEV provisioned successfully!"
 echo ""
 echo "Files created in ./output/:"
 echo "  ${DEV}-mgmt.kubeconfig  — send this to the developer"
-echo "  ${DEV}-tcp.yaml         — TenantControlPlane manifest"
 echo ""
 echo "Next steps for $DEV:"
 echo "  1. Copy ${DEV}-mgmt.kubeconfig to their WSL machine"

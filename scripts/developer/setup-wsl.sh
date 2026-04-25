@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-MGMT_IP="54.169.253.180"
+MGMT_IP="52.221.159.116"
 SCRIPTS_DIR="$HOME/kamaji-scripts"
 CALICO_URL="https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/calico.yaml"
 
@@ -86,21 +86,14 @@ echo "  ✓ calico manifest cached"
 # 9. Copy developer scripts
 mkdir -p "$SCRIPTS_DIR"
 SCRIPT_SRC="$(dirname "$0")"
-cp "$SCRIPT_SRC/new-cluster.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_SRC/join-cluster.sh" "$SCRIPTS_DIR/"
 cp "$SCRIPT_SRC/deploy-app.sh" "$SCRIPTS_DIR/"
 cp "$SCRIPT_SRC/change-env.sh" "$SCRIPTS_DIR/"
-cp "$SCRIPT_SRC/destroy-cluster.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_SRC/detach-cluster.sh" "$SCRIPTS_DIR/"
 chmod +x "$SCRIPTS_DIR"/*.sh
 echo "  ✓ scripts copied to $SCRIPTS_DIR"
 
-# 10. Copy TCP manifest if provided as 3rd argument
-TCP_MANIFEST="${3:-}"
-if [[ -n "$TCP_MANIFEST" && -f "$TCP_MANIFEST" ]]; then
-  cp "$TCP_MANIFEST" "$HOME/.kube/${DEV}-tcp.yaml"
-  echo "  ✓ TCP manifest saved to ~/.kube/${DEV}-tcp.yaml"
-fi
-
-# 11. Save dev name
+# 10. Save dev name
 echo "$DEV" > "$HOME/.kamaji-dev"
 echo "  ✓ developer identity saved (~/.kamaji-dev)"
 
@@ -108,7 +101,7 @@ echo ""
 echo "✓ WSL setup complete for $DEV!"
 echo ""
 echo "Available commands (from $SCRIPTS_DIR):"
-echo "  ./new-cluster.sh           — provision a new cluster and join this WSL as worker"
+echo "  ./join-cluster.sh          — join worker node to your control plane"
 echo "  ./deploy-app.sh            — deploy the demo app"
 echo "  ./change-env.sh <colour> <label>  — change app environment"
-echo "  ./destroy-cluster.sh       — destroy cluster and reset WSL"
+echo "  ./detach-cluster.sh        — detach worker node and reset WSL"
