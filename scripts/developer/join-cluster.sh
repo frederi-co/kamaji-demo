@@ -35,6 +35,7 @@ sudo rm -rf /etc/cni/net.d
 # 6. Join cluster
 echo "  --> Joining cluster as worker node..."
 sudo systemctl start containerd || true
+sudo sysctl -w net.ipv4.ip_forward=1 > /dev/null
 sleep 2
 sudo $JOIN_CMD
 
