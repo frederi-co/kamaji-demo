@@ -36,6 +36,7 @@ sudo rm -rf /etc/cni/net.d
 echo "  --> Joining cluster as worker node..."
 sudo systemctl start containerd || true
 sudo sysctl -w net.ipv4.ip_forward=1 > /dev/null
+echo 'KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"' | sudo tee /etc/default/kubelet > /dev/null
 sleep 2
 sudo $JOIN_CMD
 
