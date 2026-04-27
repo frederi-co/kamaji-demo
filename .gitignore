@@ -5,4 +5,5 @@ output/
 RUNBOOK.md
 docs/*
 !docs/developer-guide.md
+!docs/scripts.md
 presentation/
