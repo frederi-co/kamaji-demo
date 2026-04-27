@@ -134,7 +134,8 @@ EOF
 echo "  --> Waiting for pod to be ready..."
 kubectl --kubeconfig="$TENANT_KUBECONFIG" rollout status deployment/demo-app --timeout=120s
 
-PUBLIC_IP=$(curl -sf --max-time 2 http://169.254.169.254/latest/meta-data/public-ipv4 || true)
+IMDS_TOKEN=$(curl -sf --max-time 2 -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" || true)
+PUBLIC_IP=$(curl -sf --max-time 2 -H "X-aws-ec2-metadata-token: ${IMDS_TOKEN}" http://169.254.169.254/latest/meta-data/public-ipv4 || true)
 WSL_IP=${PUBLIC_IP:-$(ip route get 1 | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1); exit}')}
 echo ""
 echo "✓ Demo app deployed for $DEV!"
