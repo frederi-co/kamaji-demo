@@ -67,7 +67,7 @@ TOKEN=$(kubectl create token "${DEV}-sa" -n "$DEV" --duration=8760h)
 SERVER="https://${MGMT_IP}:6443"
 
 mkdir -p ./output
-cat > "./output/${DEV}-mgmt.kubeconfig" <<EOF
+cat > "./output/${DEV}.mgmt.kubeconfig" <<EOF
 apiVersion: v1
 kind: Config
 clusters:
@@ -148,8 +148,8 @@ echo ""
 echo "✓ Tenant $DEV provisioned successfully!"
 echo ""
 echo "Files created in ./output/:"
-echo "  ${DEV}-mgmt.kubeconfig  — send this to the developer"
+echo "  ${DEV}.mgmt.kubeconfig  — send this to the developer"
 echo ""
 echo "Next steps for $DEV:"
-echo "  1. Copy ${DEV}-mgmt.kubeconfig to their WSL machine"
-echo "  2. Run: ./setup-wsl.sh ${DEV} <path-to-${DEV}-mgmt.kubeconfig>"
+echo "  1. Copy ${DEV}.mgmt.kubeconfig to their WSL machine"
+echo "  2. Run: ./setup-wsl.sh ${DEV} <path-to-${DEV}.mgmt.kubeconfig>"
