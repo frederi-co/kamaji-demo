@@ -29,6 +29,8 @@ JOIN_CMD=$(kubeadm --kubeconfig="$TENANT_KUBECONFIG" token create --print-join-c
 
 # 5. Reset WSL from any previous join
 echo "  --> Resetting previous cluster state..."
+NODE=$(hostname | tr '[:upper:]' '[:lower:]')
+kubectl --kubeconfig="$TENANT_KUBECONFIG" delete node "$NODE" --ignore-not-found 2>/dev/null || true
 sudo kubeadm reset -f 2>/dev/null || true
 sudo rm -rf /etc/cni/net.d
 
@@ -43,7 +45,6 @@ sudo $JOIN_CMD
 # 7. Wait for node to register
 echo "  --> Waiting for node to register..."
 sleep 5
-NODE=$(hostname | tr '[:upper:]' '[:lower:]')
 for i in $(seq 1 12); do
   STATUS=$(kubectl --kubeconfig="$TENANT_KUBECONFIG" get node "$NODE" --no-headers 2>/dev/null | awk '{print $2}' || true)
   [[ "$STATUS" == "Ready" || "$STATUS" == "NotReady" ]] && break
