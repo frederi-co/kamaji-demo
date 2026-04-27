@@ -76,7 +76,7 @@ echo "  ✓ images pre-pulled"
 
 # 7. Place mgmt kubeconfig
 mkdir -p "$HOME/.kube"
-cp "$MGMT_KUBECONFIG" "$HOME/.kube/${DEV}.mgmt.kubeconfig"
+cp "$MGMT_KUBECONFIG" "$HOME/.kube/${DEV}.mgmt.kubeconfig" 2>/dev/null || true
 echo "  ✓ mgmt kubeconfig saved to ~/.kube/${DEV}.mgmt.kubeconfig"
 
 # 8. Download Calico manifest
