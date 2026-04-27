@@ -34,7 +34,7 @@ sudo rm -rf /etc/cni/net.d
 
 # 6. Join cluster
 echo "  --> Joining cluster as worker node..."
-sudo systemctl start containerd
+sudo systemctl start containerd || true
 sleep 2
 sudo $JOIN_CMD
 
