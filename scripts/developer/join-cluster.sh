@@ -32,7 +32,8 @@ echo "  --> Resetting previous cluster state..."
 NODE=$(hostname | tr '[:upper:]' '[:lower:]')
 kubectl --kubeconfig="$TENANT_KUBECONFIG" delete node "$NODE" --ignore-not-found 2>/dev/null || true
 sudo kubeadm reset -f 2>/dev/null || true
-sudo rm -rf /etc/cni/net.d
+sudo systemctl stop kubelet 2>/dev/null || true
+sudo rm -rf /etc/cni/net.d /var/lib/kubelet/pki
 
 # 6. Join cluster
 echo "  --> Joining cluster as worker node..."
