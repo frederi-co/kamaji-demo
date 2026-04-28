@@ -72,12 +72,21 @@ Outputs `./output/<dev>.mgmt.kubeconfig` — the only file handed off to the ten
 
 ---
 
-**`setup-ec2-worker.sh`** — prepare an EC2 instance as a worker node (alternative to setup-wsl.sh)
-1. Install system prerequisites
-2. Enable IP forwarding
-3. Install containerd, configure with SystemdCgroup=true
-4. Install kubelet, kubeadm, kubectl v1.30
-5. Pre-pull images (pause, kube-proxy, Calico, python:3.11-slim)
+**`setup-ec2-worker.sh`** — prepare an EC2 instance as a worker node and onboard a tenant (run once per node)
+1. Disable swap
+2. Install system prerequisites
+3. Enable IP forwarding
+4. Install containerd, configure with SystemdCgroup=true
+5. Install kubelet, kubeadm, kubectl v1.30
+6. Pre-pull images (pause, kube-proxy, Calico, python:3.11-slim)
+7. Save mgmt kubeconfig to `~/.kube/<dev>.mgmt.kubeconfig`
+8. Download and cache Calico manifest
+9. Copy remaining developer scripts to `~/kamaji-scripts/`
+10. Save tenant identity to `~/.kamaji-dev`
+
+Usage: `setup-ec2-worker.sh <dev-name> <path-to-mgmt-kubeconfig>`
+
+*Run on every new EC2 node joining the same cluster — machine prep and tenant onboarding in one step. Follow with `join-cluster.sh`.*
 
 ---
 

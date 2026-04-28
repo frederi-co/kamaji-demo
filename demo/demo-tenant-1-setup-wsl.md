@@ -8,13 +8,15 @@
 
 ## Prerequisites
 
-- Received `dev-alice-mgmt.kubeconfig` from Ops
+- Received `<tenant>-mgmt.kubeconfig` from Ops
 - WSL with Ubuntu 22.04 (or EC2 worker already running)
-- systemd enabled in WSL
+- systemd enabled in WSL (WSL only)
 
 ---
 
-## Enable systemd (WSL only — if not already done)
+## Option A — WSL Worker
+
+### Enable systemd (if not already done)
 
 Add to `/etc/wsl.conf`:
 ```ini
@@ -27,10 +29,6 @@ Restart WSL from PowerShell:
 wsl --shutdown
 ```
 
----
-
-## Option A — WSL Worker
-
 **1. Clone the repo**
 ```bash
 git clone https://github.com/frederi-co/kamaji-demo.git ~/kamaji-demo
@@ -38,16 +36,17 @@ git clone https://github.com/frederi-co/kamaji-demo.git ~/kamaji-demo
 
 **2. Run WSL setup**
 ```bash
-bash ~/kamaji-demo/scripts/developer/setup-wsl.sh dev-alice \
-  /mnt/c/Users/<username>/Downloads/dev-alice-mgmt.kubeconfig
+bash ~/kamaji-demo/scripts/developer/setup-wsl.sh <tenant> \
+  /mnt/c/Users/<username>/Downloads/<tenant>-mgmt.kubeconfig
 ```
 
 This will:
 - Install containerd, kubelet, kubeadm, kubectl
 - Pre-pull all required images (~3 min first time)
-- Save kubeconfig to `~/.kube/dev-alice.mgmt.kubeconfig`
+- Save kubeconfig to `~/.kube/<tenant>.mgmt.kubeconfig`
+- Download and cache Calico manifest
 - Copy scripts to `~/kamaji-scripts/`
-- Save developer identity to `~/.kamaji-dev`
+- Save tenant identity to `~/.kamaji-dev`
 
 **3. Set up kubectl tools**
 ```bash
@@ -69,28 +68,33 @@ ssh -i /path/to/key.pem ubuntu@<ec2-ip>
 git clone https://github.com/frederi-co/kamaji-demo.git ~/kamaji-demo
 ```
 
-**3. Run EC2 worker setup**
+**3. Copy kubeconfig from ops onto the EC2**
 ```bash
-bash ~/kamaji-demo/scripts/developer/setup-ec2-worker.sh
+# Ops runs from their machine:
+scp -i /path/to/key.pem <tenant>-mgmt.kubeconfig ubuntu@<ec2-ip>:/tmp/<tenant>-mgmt.kubeconfig
 ```
 
-**4. Copy kubeconfig from ops**
+**4. Run EC2 worker setup**
 ```bash
-mkdir -p ~/.kube
-# Ops runs: scp <kubeconfig> ubuntu@<ec2-ip>:/tmp/dev-alice-mgmt.kubeconfig
-mv /tmp/dev-alice-mgmt.kubeconfig ~/.kube/dev-alice.mgmt.kubeconfig
+bash ~/kamaji-demo/scripts/developer/setup-ec2-worker.sh <tenant> /tmp/<tenant>-mgmt.kubeconfig
 ```
 
-**5. Set developer identity and copy scripts**
-```bash
-bash ~/kamaji-demo/scripts/developer/setup-wsl.sh dev-alice ~/.kube/dev-alice.mgmt.kubeconfig
-```
+This will:
+- Disable swap
+- Install containerd, kubelet, kubeadm, kubectl
+- Pre-pull all required images (~3 min first time)
+- Save kubeconfig to `~/.kube/<tenant>.mgmt.kubeconfig`
+- Download and cache Calico manifest
+- Copy scripts to `~/kamaji-scripts/`
+- Save tenant identity to `~/.kamaji-dev`
+
+*Repeat steps 1–4 for each additional EC2 node joining the same tenant cluster.*
 
 ---
 
 ## Verify
 
 ```bash
-cat ~/.kamaji-dev          # should output: dev-alice
+cat ~/.kamaji-dev          # should output: <tenant>
 ls ~/kamaji-scripts/       # should list the developer scripts
 ```

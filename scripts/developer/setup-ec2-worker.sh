@@ -4,13 +4,29 @@ set -euo pipefail
 # ─────────────────────────────────────────────
 # Kamaji Worker Node Setup Script
 # Run this on a fresh Ubuntu 22.04 EC2 instance
-# Usage: bash setup-ec2-worker.sh
+# Usage: bash setup-ec2-worker.sh <dev-name> <path-to-mgmt-kubeconfig>
 # ─────────────────────────────────────────────
+
+SCRIPTS_DIR="$HOME/kamaji-scripts"
+CALICO_URL="https://raw.githubusercontent.com/projectcalico/calico/v3.24.1/manifests/calico.yaml"
+
+usage() {
+  echo "Usage: $0 <dev-name> <path-to-mgmt-kubeconfig>"
+  echo "  Example: $0 project-charlie /tmp/project-charlie.mgmt.kubeconfig"
+  exit 1
+}
+
+[[ $# -lt 2 ]] && usage
+DEV=$1
+MGMT_KUBECONFIG=$2
+
+[[ ! -f "$MGMT_KUBECONFIG" ]] && { echo "Error: kubeconfig not found at $MGMT_KUBECONFIG"; exit 1; }
 
 echo ""
 echo "════════════════════════════════════════════"
 echo "  Kamaji Worker Node Setup"
 echo "  Host: $(hostname)"
+echo "  Tenant: $DEV"
 echo "════════════════════════════════════════════"
 echo ""
 
@@ -18,6 +34,7 @@ echo ""
 # Step 1 — System prerequisites
 # ─────────────────────────────────────────────
 echo "── Step 1: System prerequisites"
+sudo swapoff -a 2>/dev/null || true
 sudo apt-get update -q
 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 echo "  ✓ Prerequisites installed"
@@ -77,6 +94,31 @@ echo "  Cached images:"
 sudo crictl images | grep -v 'IMAGE ID' | awk '{printf "    %-50s %s\n", $1":"$2, $3}'
 
 # ─────────────────────────────────────────────
+# Step 6 — Tenant onboarding
+# ─────────────────────────────────────────────
+echo ""
+echo "── Step 6: Tenant onboarding ($DEV)"
+
+mkdir -p "$HOME/.kube"
+cp "$MGMT_KUBECONFIG" "$HOME/.kube/${DEV}.mgmt.kubeconfig"
+echo "  ✓ mgmt kubeconfig saved to ~/.kube/${DEV}.mgmt.kubeconfig"
+
+curl -fsSL "$CALICO_URL" -o "$HOME/.kube/calico.yaml"
+echo "  ✓ calico manifest cached"
+
+mkdir -p "$SCRIPTS_DIR"
+SCRIPT_SRC="$(dirname "$0")"
+cp "$SCRIPT_SRC/join-cluster.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_SRC/deploy-app.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_SRC/change-env.sh" "$SCRIPTS_DIR/"
+cp "$SCRIPT_SRC/detach-cluster.sh" "$SCRIPTS_DIR/"
+chmod +x "$SCRIPTS_DIR"/*.sh
+echo "  ✓ scripts copied to $SCRIPTS_DIR"
+
+echo "$DEV" > "$HOME/.kamaji-dev"
+echo "  ✓ tenant identity saved (~/.kamaji-dev)"
+
+# ─────────────────────────────────────────────
 # Summary
 # ─────────────────────────────────────────────
 echo ""
@@ -84,14 +126,11 @@ echo "════════════════════════�
 echo "  ✓ Worker node setup complete!"
 echo "════════════════════════════════════════════"
 echo ""
-echo "  This node is ready to join a tenant cluster."
+echo "  Tenant:  $DEV"
+echo "  Host:    $(hostname)"
 echo ""
 echo "  EC2 Security Group — ensure these ports are open:"
 echo "    22     TCP   SSH"
 echo "    10250  TCP   kubelet API (for kubectl exec/logs)"
 echo ""
-echo "  To join a tenant cluster, on EC2 #1 run:"
-echo "    kubeadm --kubeconfig=~/<tenant>.kubeconfig token create --print-join-command"
-echo ""
-echo "  Then on this node run the output prefixed with sudo:"
-echo "    sudo kubeadm join <mgmt-ip>:<port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>"
+echo "  Next: run ./kamaji-scripts/join-cluster.sh"
